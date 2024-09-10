@@ -21,8 +21,34 @@ export default function HomeScreen() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      console.log(result)
+      const uri = result.assets[0].uri;
+      setImage(uri);
+      uploadImage(uri);  // Appel à la fonction d'upload
+    }
+  };
+
+  const uploadImage = async (uri: string) => {
+    const formData = new FormData();
+    formData.append('file', {
+      uri,
+      type: 'image/jpeg',
+      name: 'photo.jpg',
+    });
+
+    console.log(formData)
+
+    try {
+      const response = await fetch('https://votre-api.com/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+      const result = await response.json();
+      console.log('Upload success', result);
+    } catch (error) {
+      console.error('Upload failed', error);
     }
   };
 
