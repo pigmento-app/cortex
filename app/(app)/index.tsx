@@ -2,23 +2,18 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   Image,
   StyleSheet,
-  Button,
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   Platform,
   useColorScheme,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";≤
-import ParallaxScrollView from "@/components/ParallaxScrollView";
+import * as ImagePicker from "expo-image-picker";
 import { ThemedView } from "@/components/ThemedView";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Camera from "@/assets/svg/camera.svg";
 import { Fonts } from "@/constants/Fonts";
 import { Ellipse, Svg } from "react-native-svg";
 import { Colors } from "@/constants/Colors";
-import fs from "fs";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -114,24 +109,27 @@ export default function HomeScreen() {
           { backgroundColor: Colors[theme].background },
         ]}
       >
-        
-          <View style={styles.infoContainer}>
-            <View
-              style={{ flexDirection: "row", gap: 10, alignItems: "center" }}
-            >
-              <Svg height="40" width="40">
-                {/* Set the cx, cy to 20 and rx, ry to 20 for a 40px circle */}
-                <Ellipse cx="20" cy="20" rx="20" ry="20" fill={currentColor || "gray"} />
-              </Svg>
-              <Text style={[Fonts.info, { color: Colors[theme].text }]}>
+        <View style={styles.infoContainer}>
+          <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+            <Svg height="40" width="40">
+              {/* Set the cx, cy to 20 and rx, ry to 20 for a 40px circle */}
+              <Ellipse
+                cx="20"
+                cy="20"
+                rx="20"
+                ry="20"
+                fill={currentColor || "gray"}
+              />
+            </Svg>
+            <Text style={[Fonts.info, { color: Colors[theme].text }]}>
               Couleur du jour
             </Text>
-            </View>
-            <Text style={Fonts.info}>{score} points</Text>
           </View>
-          <Text style={[Fonts.info, { color: Colors[theme].text }]}>
-            {score} points
-          </Text>
+          <Text style={Fonts.info}>{score} points</Text>
+        </View>
+        <Text style={[Fonts.info, { color: Colors[theme].text }]}>
+          {score} points
+        </Text>
         <View
           style={[
             styles.btnContainer,
