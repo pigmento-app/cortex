@@ -1,14 +1,26 @@
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 
-import { useSession } from '@/context/authContext';
 import AuthButton from '@/components/AuthButton';
+import Container from '@/components/Container';
+import { useSession } from '@/context/authContext';
 
 export default function SignIn() {
   const { signIn } = useSession();
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Container>
       <AuthButton />
-    </View>
+      <TouchableOpacity onPress={() => router.push('/auth/signUp')}>
+        <Text style={styles.signUpText}>Don't have an account? Sign Up</Text>
+      </TouchableOpacity>
+    </Container>
   );
 }
+
+const styles = StyleSheet.create({
+  signUpText: {
+    color: 'blue',
+    marginTop: 20,
+    textDecorationLine: 'underline'
+  }
+});
