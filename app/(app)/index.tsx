@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Image,
   StyleSheet,
@@ -18,12 +18,15 @@ import { Fonts } from "@/constants/Fonts";
 import { Ellipse, Svg } from "react-native-svg";
 import fs from "fs";
 
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 export default function HomeScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [colorCounts, setColorCounts] = useState<{
     [key: string]: number;
   } | null>(null);
   const [score, setScore] = useState<number>(0);
+  const [currentColor, setCurrentColor] = useState<string | null>(null); // RGB color as string
 
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -46,7 +49,7 @@ export default function HomeScreen() {
 
   const uploadImage = async (image: ImagePicker.ImagePickerAsset) => {
     console.log("IMAGE", image);
-    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
     const formData = new FormData();
 
     // Ajouter le fichier à l'objet FormData
@@ -78,6 +81,27 @@ export default function HomeScreen() {
     }
   };
 
+  const getColor = useCallback(async () => {
+    try {
+      const response = await fetch(`${apiUrl}/colors`, {
+        method: "GET",
+      });
+      const result = await response.json();
+      setCurrentColor(result.color);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      console.log(result.color);
+    } catch (error) {
+      console.error("Upload failed", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    getColor();
+  }, [getColor]);
+
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <ThemedView style={styles.mainContainer}>
@@ -89,7 +113,13 @@ export default function HomeScreen() {
             >
               <Svg height="40" width="40">
                 {/* Set the cx, cy to 20 and rx, ry to 20 for a 40px circle */}
-                <Ellipse cx="20" cy="20" rx="20" ry="20" fill="red" />
+                <Ellipse
+                  cx="20"
+                  cy="20"
+                  rx="20"
+                  ry="20"
+                  fill={currentColor || "gray"}
+                />
               </Svg>
               <Text style={Fonts.info}>Couleur du jour</Text>
             </View>
