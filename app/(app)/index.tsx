@@ -7,6 +7,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -15,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Camera from "@/assets/svg/camera.svg";
 import { Fonts } from "@/constants/Fonts";
 import { Ellipse, Svg } from "react-native-svg";
+import fs from "fs";
 
 export default function HomeScreen() {
   const [image, setImage] = useState<string | null>(null);
@@ -36,30 +38,41 @@ export default function HomeScreen() {
     });
 
     if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      setImage(uri);
-      uploadImage(uri); // Appel à la fonction d'upload
+      const image = result.assets[0];
+      setImage(image.uri);
+      uploadImage(image); // Appel à la fonction d'upload
     }
   };
 
-  const uploadImage = async (uri: string) => {
+  const uploadImage = async (image: ImagePicker.ImagePickerAsset) => {
+    console.log("IMAGE", image);
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
     const formData = new FormData();
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    formData.append("file", blob, "photo.jpg");
 
-    console.log(formData);
+    // Ajouter le fichier à l'objet FormData
+    formData.append("file", {
+      uri:
+        Platform.OS === "android"
+          ? image.uri
+          : image.uri.replace("file://", ""), // iOS nécessite de retirer 'file://'
+      type: image.mimeType,
+      name: image.fileName,
+    } as any);
+
+    console.log("API URL", apiUrl);
 
     try {
-      const response = await fetch("https://votre-api.com/upload", {
+      const response = await fetch(`${apiUrl}/uploads`, {
         method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
         body: formData,
       });
       const result = await response.json();
-      console.log("Upload success", result);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      console.log(result.score);
+      setScore(result.score);
     } catch (error) {
       console.error("Upload failed", error);
     }
@@ -80,7 +93,7 @@ export default function HomeScreen() {
               </Svg>
               <Text style={Fonts.info}>Couleur du jour</Text>
             </View>
-            <Text style={Fonts.info}>0 points</Text>
+            <Text style={Fonts.info}>{score} points</Text>
           </View>
         </View>
         <View style={styles.btnContainer}>
