@@ -44,11 +44,9 @@ export default function HomeScreen() {
 
   const uploadImage = async (uri: string) => {
     const formData = new FormData();
-    formData.append("file", {
-      uri,
-      type: "image/jpeg",
-      name: "photo.jpg",
-    });
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    formData.append("file", blob, "photo.jpg");
 
     console.log(formData);
 
