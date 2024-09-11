@@ -48,14 +48,15 @@ export default function HomeScreen() {
     console.log("IMAGE", image);
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
     const formData = new FormData();
+
     // Ajouter le fichier à l'objet FormData
     formData.append("file", {
       uri:
         Platform.OS === "android"
           ? image.uri
           : image.uri.replace("file://", ""), // iOS nécessite de retirer 'file://'
-      type: image.mimeType, // Type MIME du fichier
-      name: image.fileName, // Nom du fichier
+      type: image.mimeType,
+      name: image.fileName,
     } as any);
 
     console.log("API URL", apiUrl);
