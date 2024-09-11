@@ -65,8 +65,6 @@ export default function HomeScreen() {
       name: image.fileName,
     } as any);
 
-    console.log("API URL", apiUrl);
-
     try {
       const response = await fetch(`${apiUrl}/uploads`, {
         method: "POST",
@@ -90,12 +88,10 @@ export default function HomeScreen() {
         method: "GET",
       });
       const result = await response.json();
-      setCurrentColor(result.color);
       if (result.error) {
         throw new Error(result.error);
       }
-
-      console.log(result.color);
+      setCurrentColor(result.color);
     } catch (error) {
       console.error("Upload failed", error);
     }
