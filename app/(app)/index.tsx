@@ -1,23 +1,21 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Image,
   StyleSheet,
-  Button,
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   Platform,
   useColorScheme,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedView } from "@/components/ThemedView";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Camera from "@/assets/svg/camera.svg";
 import { Fonts } from "@/constants/Fonts";
 import { Ellipse, Svg } from "react-native-svg";
 import { Colors } from "@/constants/Colors";
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 export default function HomeScreen() {
   const [image, setImage] = useState<string | null>(null);
@@ -26,6 +24,7 @@ export default function HomeScreen() {
   } | null>(null);
   const [score, setScore] = useState<number>(0);
   const theme = useColorScheme() ?? "light";
+  const [currentColor, setCurrentColor] = useState<string | null>(null); // RGB color as string
 
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -48,7 +47,7 @@ export default function HomeScreen() {
 
   const uploadImage = async (image: ImagePicker.ImagePickerAsset) => {
     console.log("IMAGE", image);
-    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
     const formData = new FormData();
 
     // Ajouter le fichier à l'objet FormData
@@ -60,8 +59,6 @@ export default function HomeScreen() {
       type: image.mimeType,
       name: image.fileName,
     } as any);
-
-    console.log("API URL", apiUrl);
 
     try {
       const response = await fetch(`${apiUrl}/uploads`, {
@@ -80,6 +77,25 @@ export default function HomeScreen() {
     }
   };
 
+  const getColor = useCallback(async () => {
+    try {
+      const response = await fetch(`${apiUrl}/colors`, {
+        method: "GET",
+      });
+      const result = await response.json();
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      setCurrentColor(result.color);
+    } catch (error) {
+      console.error("Upload failed", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    getColor();
+  }, [getColor]);
+
   return (
     <View
       style={[
@@ -97,16 +113,23 @@ export default function HomeScreen() {
           <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
             <Svg height="40" width="40">
               {/* Set the cx, cy to 20 and rx, ry to 20 for a 40px circle */}
-              <Ellipse cx="20" cy="20" rx="20" ry="20" fill="red" />
+              <Ellipse
+                cx="20"
+                cy="20"
+                rx="20"
+                ry="20"
+                fill={currentColor || "gray"}
+              />
             </Svg>
             <Text style={[Fonts.info, { color: Colors[theme].text }]}>
               Couleur du jour
             </Text>
           </View>
-          <Text style={[Fonts.info, { color: Colors[theme].text }]}>
-            {score} points
-          </Text>
+          <Text style={Fonts.info}>{score} points</Text>
         </View>
+        <Text style={[Fonts.info, { color: Colors[theme].text }]}>
+          {score} points
+        </Text>
         <View
           style={[
             styles.btnContainer,
