@@ -74,6 +74,7 @@ export default function SignUp() {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
+              autoCapitalize='none'
             />
           </View>
         )}

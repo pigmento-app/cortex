@@ -3,12 +3,11 @@ import React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, Button } from 'react-native';
 import { z } from 'zod';
 
 import Container from '@/components/Container';
-import { API_BASE_URL } from '@/config';
-import AuthButton from '@/components/AuthButton';
+import { API_BASE_URL, DEV_MODE } from '@/config';
 import { useSession } from '@/context/authContext';
 
 const signInSchema = z.object({
@@ -22,10 +21,13 @@ interface SignInFormData {
 }
 
 interface ApiResponse {
+  success?: string;
+  token?: string;
   message?: string;
 }
 
 export default function SignIn() {
+  const { signIn } = useSession();
   const {
     control,
     handleSubmit,
@@ -37,8 +39,6 @@ export default function SignIn() {
       password: ''
     }
   });
-
-  const {signIn} = useSession();
 
   const onSubmit = async (data: SignInFormData): Promise<void> => {
     try {
@@ -56,9 +56,14 @@ export default function SignIn() {
         return;
       }
 
-      Alert.alert('Success', 'Signed in successfully');
-      signIn();
-      router.replace('/')
+      const responseData: ApiResponse = await response.json();
+      if (responseData.token) {
+        signIn(responseData.token);
+        Alert.alert('Success', 'Signed in successfully');
+        router.replace('/');
+      } else {
+        Alert.alert('Error', 'Failed to retrieve token');
+      }
     } catch (error) {
       Alert.alert('Error', 'Failed to sign in');
     }
@@ -79,6 +84,7 @@ export default function SignIn() {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
+              autoCapitalize="none"
             />
           </View>
         )}
@@ -110,6 +116,16 @@ export default function SignIn() {
       <TouchableOpacity onPress={() => router.push('/auth/signUp')}>
         <Text style={styles.signUpText}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
+
+      {DEV_MODE && (
+        <Button
+          title="Dev mode"
+          onPress={() => {
+            signIn('xxx');
+            router.replace('/');
+          }}
+        />
+      )}
     </Container>
   );
 }

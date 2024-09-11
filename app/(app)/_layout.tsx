@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, View, SafeAreaView } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, SafeAreaView, Button } from 'react-native';
 import { Redirect, Stack } from 'expo-router';
 import { Tabs } from 'expo-router';
 import React from 'react';
@@ -6,10 +6,9 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSession } from '@/context/authContext';
-import AuthButton from '@/components/AuthButton';
 
 export default function AppLayout() {
-  const { session, isOnboard, isLoading } = useSession();
+  const { session, isOnboard, isLoading, signOut } = useSession();
 
   if (isLoading) {
     return <ActivityIndicator size="large" />;
@@ -26,7 +25,7 @@ export default function AppLayout() {
   return (
       <>
         <View style={styles.header}>
-          <AuthButton isSignIn={false} />
+          <Button title="Sign out" onPress={signOut} />
         </View>
         <View style={styles.content}>
           <TabLayout />
