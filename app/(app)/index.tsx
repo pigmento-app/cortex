@@ -16,26 +16,28 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  runOnJS,
 } from "react-native-reanimated";
 import DayCard from "@/components/dayCard/DayCard";
+import { useLocalSearchParams } from "expo-router";
 
 const dummyCardInfo = [
   {
-    image: "https://thenounproject.com/icon/gender-expression-5912403/",
+    image: "",
     weekday: "Wednesday",
     rest: "September 11",
     score: 10,
     color: "red",
   },
   {
-    image: "https://thenounproject.com/icon/empathy-5912400/",
+    image: "",
     weekday: "Tuesday",
     rest: "September 10",
     score: 22,
     color: "blue",
   },
   {
-    image: "https://thenounproject.com/icon/gender-fluid-5912404/",
+    image: "",
     weekday: "Monday",
     rest: "September 09",
     score: 90,
@@ -68,41 +70,26 @@ export default function HomeScreen() {
   };
 
   const formattedDate = date.toLocaleDateString("en-US", options);
-  const [weekday, rest] = formattedDate.split(", ");
-  const [currentColor, setCurrentColor] = useState<string | null>(null); // RGB color as string
+  const { currentColor } = useLocalSearchParams();
 
-  const getColor = useCallback(async () => {
-    try {
-      const response = await fetch(`${apiUrl}/colors`, {
-        method: "GET",
-      });
-      const result = await response.json();
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      setCurrentColor(result.color);
-    } catch (error: any) {
-      Alert.alert("Failed to fetch today's color", error.message);
-      console.error("Upload failed", error);
-    }
-  }, []);
+
+  const [weekday, rest] = formattedDate.split(", ");
 
   useEffect(() => {
-    getColor().then(() => {
-      if (!hasPlayed) {
-        // If the user has never played, add a card for today
-        const todaysCard = {
-          image: "", // No image yet
-          weekday,
-          rest,
-          score: 0, // No score yet
-          color: currentColor || "gray", // Default color
-        };
-        setCardInfo([todaysCard, ...dummyCardInfo]); // Add today's card as the first one
-        setDayIndex(0); // Make sure today's card is the first one shown
-      }
-    });
-  }, [hasPlayed, getColor, currentColor]);
+    if (!hasPlayed) {
+      // If the user has never played, add a card for today
+      const todaysCard = {
+        image: "", // No image yet
+        weekday,
+        rest,
+        score: 0, // No score yet
+        color: currentColor || "gray", // Default color
+      };
+      setCardInfo([todaysCard, ...dummyCardInfo]); // Add today's card as the first one
+      setDayIndex(0); // Make sure today's card is the first one shown
+    }
+  }, [hasPlayed, currentColor]);
+
 
   const takePhoto = async () => {
     try {
@@ -201,17 +188,15 @@ export default function HomeScreen() {
     .onEnd((e) => {
       if (cardInfo && e.translationX > width.width / 2) {
         if (dayIndex > 0) {
-          console.log("SWIPE RIGHT, MOVE TO PREVIOUS CARD");
-          // setDayIndex((prevIndex) => prevIndex - 1);
           translateX.value = withTiming(0, { duration: 500 });
+          runOnJS(setDayIndex)(dayIndex - 1);
         } else {
           translateX.value = withTiming(0, { duration: 500 });
         }
       } else if (cardInfo && e.translationX < -width.width / 2) {
         if (dayIndex < cardInfo.length - 1) {
-          console.log("SWIPE LEFT, MOVE TO NEXT CARD");
-          // setDayIndex((prevIndex) => prevIndex + 1);
           translateX.value = withTiming(0, { duration: 500 });
+          runOnJS(setDayIndex)(dayIndex + 1);
         } else {
           translateX.value = withTiming(0, { duration: 500 });
         }
@@ -264,7 +249,7 @@ export default function HomeScreen() {
             score={cardInfo[dayIndex].score}
             weekday={cardInfo[dayIndex].weekday}
             rest={cardInfo[dayIndex].rest}
-            colorOfTheDay={cardInfo[dayIndex].color}
+            colorOfTheDay={Array.isArray(currentColor) ? currentColor[0] : currentColor}
             takePhoto={takePhoto}
           />
         </Animated.View>

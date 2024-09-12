@@ -1,8 +1,8 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ActivityIndicator, StyleSheet, View, Button, TouchableWithoutFeedback } from "react-native";
+import { ActivityIndicator, StyleSheet, View, Button, TouchableWithoutFeedback, Alert } from "react-native";
 import { Redirect } from "expo-router";
 import { Tabs } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useSession } from "@/context/authContext";
@@ -13,20 +13,43 @@ import { Colors } from "@/constants/Colors";
 // ICONS
 import PigmentoLogo from "@/assets/svg/logo-pigmento.svg";
 
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 export default function AppLayout() {
   const colorScheme = useColorScheme();
   const { session, isOnboard, isLoading, signOut } = useSession();
   const [showDailyColor, setShowDailyColor] = useState(true);
+  const [currentColor, setCurrentColor] = useState<string>("blue");
+  const [isColorLoading, setIsColorLoading] = useState<boolean>(true);
+
+  const getColor = useCallback(async () => {
+    try {
+      const response = await fetch(`${apiUrl}/colors`, {
+        method: "GET",
+      });
+      const result = await response.json();
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      setCurrentColor(result.color);
+      setIsColorLoading(false);
+    } catch (error: any) {
+      Alert.alert("Failed to fetch today's color", error.message);
+      console.error("Fetch failed", error);
+    }
+  }, []);
 
   useEffect(() => {
+    getColor();
+
     const timer = setTimeout(() => {
       setShowDailyColor(false);
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [getColor]);
 
-  if (isLoading) {
+  if (isLoading || isColorLoading) {
     return <ActivityIndicator size="large" />;
   }
 
@@ -42,7 +65,7 @@ export default function AppLayout() {
     return (
       <TouchableWithoutFeedback onPress={() => setShowDailyColor(false)}>
         <View style={{ flex: 1 }}>
-          <DailyColor />
+          <DailyColor currentColor={currentColor} />
         </View>
       </TouchableWithoutFeedback>
     );
@@ -71,14 +94,14 @@ export default function AppLayout() {
           />
         </SafeAreaView>
         <View style={styles.content}>
-          <TabLayout />
+          <TabLayout currentColor={currentColor} />
         </View>
       </View>
     </GestureHandlerRootView>
   );
 }
 
-function TabLayout() {
+function TabLayout({ currentColor }: { currentColor: string }) {
   const colorScheme = useColorScheme();
 
   return (
@@ -105,6 +128,7 @@ function TabLayout() {
             />
           ),
         }}
+        initialParams={{ currentColor }}
       />
       <Tabs.Screen
         name="gallery"
