@@ -4,33 +4,16 @@ import { Colors } from "@/constants/Colors";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-export default function DailyColor() {
+export default function DailyColor({currentColor}: {currentColor: string}) {
   const colorScheme = useColorScheme();
-  const [currentColor, setCurrentColor] = useState<string>("blue");
 
   const mainCircleAnimation = useRef(new Animated.Value(1)).current;
   const animation1 = useRef(new Animated.Value(0)).current;
   const animation2 = useRef(new Animated.Value(0)).current;
   const animation3 = useRef(new Animated.Value(0)).current;
 
-  const getColor = useCallback(async () => {
-    try {
-      const response = await fetch(`${apiUrl}/colors`, {
-        method: "GET",
-      });
-      const result = await response.json();
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      setCurrentColor(result.color);
-    } catch (error: any) {
-      Alert.alert("Failed to fetch today's color", error.message);
-      console.error("Fetch failed", error);
-    }
-  }, []);
-
   useEffect(() => {
-    getColor();
+    // getColor();
 
     const startScaleAnimation = (animation: Animated.Value) => {
       Animated.loop(
@@ -109,7 +92,7 @@ export default function DailyColor() {
     startTranslateAnimation1(animation1);
     startTranslateAnimation2(animation2);
     startTranslateAnimation3(animation3);
-  }, [mainCircleAnimation, animation1, animation2, animation3, getColor]);
+  }, [mainCircleAnimation, animation1, animation2, animation3]);
 
   return (
     <View style={[styles.container, { backgroundColor: Colors[colorScheme ?? "light"].background }]}>
