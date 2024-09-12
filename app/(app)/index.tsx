@@ -55,8 +55,7 @@ export default function HomeScreen() {
         [{ resize: { width: 600, height: 600 } }],
         { compress: 1, format: ImageManipulator.SaveFormat.JPEG } // Optionally adjust compression and format
       );
-
-      setImage(resizedImage.uri);
+      setImage(image.uri);
       uploadImage(resizedImage);
     }
   };
@@ -172,13 +171,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#E3E3E3",
-    // iOS Shadow
-    shadowColor: "#000", // Shadow color
-    shadowOffset: { width: 0, height: 4 }, // Position of the shadow
-    shadowOpacity: 0.3, // Transparency of the shadow
-    shadowRadius: 5, // How blurry the shadow is
-    // Android Shadow
-    elevation: 5, // Shadow for Android
   },
   takePhotoBtn: {
     flexDirection: "row",
@@ -188,7 +180,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     backgroundColor: "white",
-    marginBottom: 20,
   },
   takePhotoBtnText: {
     color: "#111",
@@ -197,7 +188,6 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    marginTop: 10,
     borderRadius: 10,
   },
 });
