@@ -59,7 +59,7 @@ export default function ArrowButton({
           style={styles.icon}
         />
       )}
-      <Text style={{ fontSize: 0 }}>{title}</Text>
+      <Text style={{ fontSize: 0, opacity: 0, display: "none" }}>{title}</Text>
     </TouchableOpacity>
   );
 }
