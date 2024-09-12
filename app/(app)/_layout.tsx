@@ -1,12 +1,6 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  View,
-  Button,
-  TouchableOpacity,
-  Text,
-} from "react-native";
-import { Redirect, Stack } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ActivityIndicator, StyleSheet, View, Button } from "react-native";
+import { Redirect } from "expo-router";
 import { Tabs } from "expo-router";
 import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
@@ -15,7 +9,6 @@ import { useSession } from "@/context/authContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 // CONSTANTS
 import { Colors } from "@/constants/Colors";
-import { Fonts } from "@/constants/Fonts";
 // ICONS
 import PigmentoLogo from "@/assets/svg/logo-pigmento.svg";
 
@@ -37,30 +30,32 @@ export default function AppLayout() {
   }
 
   return (
-    <View
-      style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
-        flex: 1,
-        paddingHorizontal: 34,
-      }}
-    >
-      <SafeAreaView
-        style={[
-          styles.header,
-          { backgroundColor: Colors[colorScheme ?? "light"].background },
-        ]}
+    <GestureHandlerRootView>
+      <View
+        style={{
+          backgroundColor: Colors[colorScheme ?? "light"].background,
+          flex: 1,
+          paddingHorizontal: 34,
+        }}
       >
-        <PigmentoLogo width={40} height={40} />
-        <Button
-          title="Sign out"
-          onPress={signOut}
-          color={Colors[colorScheme ?? "light"].text}
-        />
-      </SafeAreaView>
-      <View style={styles.content}>
-        <TabLayout />
+        <SafeAreaView
+          style={[
+            styles.header,
+            { backgroundColor: Colors[colorScheme ?? "light"].background },
+          ]}
+        >
+          <PigmentoLogo width={40} height={40} />
+          <Button
+            title="Sign out"
+            onPress={signOut}
+            color={Colors[colorScheme ?? "light"].text}
+          />
+        </SafeAreaView>
+        <View style={styles.content}>
+          <TabLayout />
+        </View>
       </View>
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
