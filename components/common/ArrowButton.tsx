@@ -8,6 +8,7 @@ type ArrowButtonProps = {
   direction?: "left" | "right" | "up" | "down";
   style?: any;
   isLast?: boolean;
+  opacity?: number;
 };
 
 export default function ArrowButton({
@@ -16,6 +17,7 @@ export default function ArrowButton({
   direction = "right",
   style,
   isLast = false,
+  opacity = 1,
 }: ArrowButtonProps) {
   const getIconName = () => {
     switch (direction) {
@@ -35,7 +37,11 @@ export default function ArrowButton({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[isLast ? styles.lastButton : styles.button, style]}
+      style={[
+        isLast ? styles.lastButton : styles.button,
+        style,
+        { opacity: opacity },
+      ]}
     >
       {direction === "left" && (
         <Ionicons

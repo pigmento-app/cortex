@@ -2,8 +2,15 @@ import LogoOnly from "@/assets/svg/LogoOnly.svg";
 import ArrowButton from "@/components/common/ArrowButton";
 import { useSession } from "@/context/authContext";
 import { router } from "expo-router";
-import { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const steps = [
@@ -12,18 +19,21 @@ const steps = [
     title: "One color, every day",
     description:
       "Every day, you are notified of a random color at a random time.",
+    image: require("@/assets/images/onboarding/step1.png"),
   },
   {
     colorBottom: "#7F0134",
     title: "One picture, every day",
     description:
       "Take a picture around you, trying to capture as much of the proposed color as possible.",
+    // image: require("@/assets/images/onboarding/step2.png"),
   },
   {
     colorBottom: "#5B3A6A",
     title: "One score, every day",
     description:
       "The closer your photo is to the color, the more points you'll earn.",
+    // image: require("@/assets/images/onboarding/step3.png"),
   },
 ];
 
@@ -45,9 +55,31 @@ export default function Onboarding() {
 
   const renderStepContent = () => (
     <View>
-      <Text>{`Step ${step}`}</Text>
+      <Image
+        source={steps[step - 1].image}
+        style={{
+          width: "auto",
+          height: "100%",
+          resizeMode: "contain",
+          marginLeft: "4%",
+          marginRight: "4%",
+        }}
+      />
     </View>
   );
+
+  const dotWidths = steps.map(() => useRef(new Animated.Value(10)).current);
+  const activeDotWidth = 24;
+
+  useEffect(() => {
+    steps.forEach((_, i) => {
+      Animated.timing(dotWidths[i], {
+        toValue: step === i + 1 ? activeDotWidth : 10,
+        duration: 150,
+        useNativeDriver: false,
+      }).start();
+    });
+  }, [step]);
 
   const renderBottomContent = () => (
     <View
@@ -64,20 +96,23 @@ export default function Onboarding() {
       </View>
       <View>
         <View style={styles.navContainer}>
-          {step > 1 ? (
-            <ArrowButton
-              title="Back"
-              onPress={() => setStep(step - 1)}
-              direction="left"
-            />
-          ) : (
-            <View style={{ width: 40 }} />
-          )}
+          <ArrowButton
+            title="Back"
+            onPress={() => setStep(step - 1)}
+            direction="left"
+            opacity={step > 1 ? 1 : 0}
+          />
           <View style={styles.pagination}>
             {steps.map((_, i) => (
-              <View
+              <Animated.View
                 key={i}
-                style={step === i + 1 ? styles.activeDot : styles.dot}
+                style={[
+                  styles.dot,
+                  i === step - 1 && styles.activeDot,
+                  {
+                    width: dotWidths[i],
+                  },
+                ]}
               />
             ))}
           </View>
@@ -86,12 +121,14 @@ export default function Onboarding() {
               title="Next"
               onPress={handleNextStep}
               direction="right"
+              opacity={1}
             />
           ) : (
             <ArrowButton
               title="Next"
               onPress={handleNextStep}
               direction="right"
+              opacity={1}
               isLast={true}
             />
           )}
@@ -182,7 +219,7 @@ const styles = StyleSheet.create({
   activeDot: {
     width: 24,
     height: 10,
-    borderRadius: 4,
+    borderRadius: 1000,
     backgroundColor: "white",
   },
   dot: {
