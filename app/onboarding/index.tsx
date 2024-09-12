@@ -74,7 +74,7 @@ export default function Onboarding() {
   };
 
   // Gestion du changement d'étape lors du scroll
-  const handleScroll = (event) => {
+  const handleScroll = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const currentStep = Math.round(scrollPosition / screenWidth) + 1;
 
@@ -191,7 +191,7 @@ export default function Onboarding() {
             <Text style={{ fontSize: 16, fontWeight: "400" }}>Skip</Text>
           </TouchableOpacity>
         </View>
-        <View>
+        <View style={{ paddingBottom: 20 }}>
           {renderStepContent()}
           {renderBottomContent()}
         </View>

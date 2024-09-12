@@ -41,7 +41,12 @@ export default function DayCard({
       </View>
       <View style={[styles.btnContainer]}>
         {!image && (
-          <TouchableOpacity onPress={takePhoto} style={[styles.takePhotoBtn]}>
+          <TouchableOpacity
+            onPress={() => {
+              takePhoto();
+            }}
+            style={[styles.takePhotoBtn]}
+          >
             <CameraTabbar width={24} height={24} />
             <Text style={styles.takePhotoBtnText}>Prendre une photo</Text>
           </TouchableOpacity>

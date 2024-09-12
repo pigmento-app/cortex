@@ -88,22 +88,21 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    console.log("CARD INFO BOYY", cardInfo);
-  }, [cardInfo]);
-
-  useEffect(() => {
-    if (!hasPlayed) {
-      const todaysCard = {
-        image: "",
-        weekday,
-        rest,
-        score: 0,
-        color: currentColor || "gray",
-      };
-      setCardInfo((prevCardInfo) => [todaysCard, ...prevCardInfo]);
-      setDayIndex(0);
-    }
-  }, [hasPlayed, getColor]);
+    getColor().then(() => {
+      if (!hasPlayed) {
+        // If the user has never played, add a card for today
+        const todaysCard = {
+          image: "", // No image yet
+          weekday,
+          rest,
+          score: 0, // No score yet
+          color: currentColor || "gray", // Default color
+        };
+        setCardInfo([todaysCard, ...dummyCardInfo]); // Add today's card as the first one
+        setDayIndex(0); // Make sure today's card is the first one shown
+      }
+    });
+  }, [hasPlayed, getColor, currentColor]);
 
   const takePhoto = async () => {
     try {
