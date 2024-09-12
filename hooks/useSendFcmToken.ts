@@ -1,23 +1,33 @@
 import { useEffect } from 'react';
 import messaging from '@react-native-firebase/messaging';
-import axios from 'axios';
+import firebase from '@react-native-firebase/app';
+import { API_BASE_URL, firebaseConfig } from '@/config';
 
 export function useSendFcmToken() {
 	const sendFcmToken = async () => {
 		try {
+			if (!firebase.apps.length) {
+				firebase.initializeApp(firebaseConfig);
+			}
+
 			await messaging().registerDeviceForRemoteMessages();
 			const token = await messaging().getToken();
 
-			await axios.post(
-				`${process.env.REACT_APP_API_URL}/api/notifications/register`,
-				{ token }
-			);
-		} catch (err) {
-			if (axios.isAxiosError(err) && err.response) {
-				console.error(err.response.data);
-			} else {
-				console.error(err);
+			const response = await fetch(`${API_BASE_URL}/notifications/register`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ token }),
+			});
+
+			const result = await response.json();
+			if (result.error) {
+				throw new Error(result.error);
 			}
+		} catch (err) {
+			console.error(err);
+
 			return;
 		}
 	};
