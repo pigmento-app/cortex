@@ -31,8 +31,6 @@ export default function DayCard({
 }: DayCardProps) {
   const theme = useColorScheme() ?? "light";
 
-  console.log("DayCard", { image, score, weekday, rest, colorOfTheDay });
-
   return (
     <>
       <View style={styles.datesContainer}>
@@ -43,10 +41,7 @@ export default function DayCard({
       </View>
       <View style={[styles.btnContainer]}>
         {!image && (
-          <TouchableOpacity
-            onPress={takePhoto}
-            style={[styles.takePhotoBtn]}
-          >
+          <TouchableOpacity onPress={takePhoto} style={[styles.takePhotoBtn]}>
             <CameraTabbar width={24} height={24} />
             <Text style={styles.takePhotoBtnText}>Prendre une photo</Text>
           </TouchableOpacity>
@@ -56,7 +51,6 @@ export default function DayCard({
       <View style={styles.infoContainer}>
         <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
           <Svg height="40" width="40">
-            {/* Set the cx, cy to 20 and rx, ry to 20 for a 40px circle */}
             <Ellipse
               cx="20"
               cy="20"

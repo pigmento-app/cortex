@@ -6,7 +6,6 @@ import {
   useColorScheme,
   useWindowDimensions,
   Alert,
-  Text,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
@@ -24,21 +23,21 @@ const dummyCardInfo = [
   {
     image: "https://thenounproject.com/icon/gender-expression-5912403/",
     weekday: "Wednesday",
-    rest: "September 25",
+    rest: "September 11",
     score: 10,
     color: "red",
   },
   {
     image: "https://thenounproject.com/icon/empathy-5912400/",
     weekday: "Tuesday",
-    rest: "September 24",
+    rest: "September 10",
     score: 22,
     color: "blue",
   },
   {
     image: "https://thenounproject.com/icon/gender-fluid-5912404/",
     weekday: "Monday",
-    rest: "September 23",
+    rest: "September 09",
     score: 90,
     color: "green",
   },
@@ -56,7 +55,6 @@ export default function HomeScreen() {
         color: string;
       }[]
   >(dummyCardInfo);
-  const [image, setImage] = useState<string | null>(null);
   const [score, setScore] = useState<number>(0);
   const theme = useColorScheme() ?? "light";
   const date = new Date();
@@ -90,20 +88,21 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    // getColor().then(() => {
+    console.log("CARD INFO BOYY", cardInfo);
+  }, [cardInfo]);
+
+  useEffect(() => {
     if (!hasPlayed) {
-      // If the user has never played, add a card for today
       const todaysCard = {
-        image: "", // No image yet
+        image: "",
         weekday,
         rest,
-        score: 0, // No score yet
-        color: currentColor || "gray", // Default color
+        score: 0,
+        color: currentColor || "gray",
       };
-      setCardInfo([todaysCard, ...dummyCardInfo]); // Add today's card as the first one
-      setDayIndex(0); // Make sure today's card is the first one shown
+      setCardInfo((prevCardInfo) => [todaysCard, ...prevCardInfo]);
+      setDayIndex(0);
     }
-    // });
   }, [hasPlayed, getColor]);
 
   const takePhoto = async () => {
@@ -111,7 +110,6 @@ export default function HomeScreen() {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== "granted") {
         Alert.alert("Permission to access camera is required!");
-        alert("Permission to access camera is required!");
         return;
       }
 
@@ -121,20 +119,27 @@ export default function HomeScreen() {
       });
 
       if (!result.canceled) {
-        const image = result.assets[0];
+        const imageTmp = result.assets[0];
 
         // Resize the image to 600x600 pixels
         const resizedImage = await ImageManipulator.manipulateAsync(
-          image.uri,
+          imageTmp.uri,
           [{ resize: { width: 600, height: 600 } }],
-          { compress: 1, format: ImageManipulator.SaveFormat.JPEG } // Optionally adjust compression and format
+          { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
         );
-        setImage(image.uri);
         setCardInfo((prevCardInfo) => {
-          const updatedCardInfo = [...prevCardInfo];
-          updatedCardInfo[dayIndex].image = resizedImage.uri;
-          return updatedCardInfo;
+          // Safeguard: ensure `prevCardInfo` exists and has a valid `dayIndex`
+          if (prevCardInfo && prevCardInfo[dayIndex]) {
+            const updatedCardInfo = [...prevCardInfo];
+            updatedCardInfo[dayIndex] = {
+              ...updatedCardInfo[dayIndex], // Keep other properties intact
+              image: imageTmp.uri, // Update only the image
+            };
+            return updatedCardInfo;
+          }
+          return prevCardInfo;
         });
+
         setHasPlayed(true);
         uploadImage(resizedImage);
       }
@@ -144,11 +149,9 @@ export default function HomeScreen() {
   };
 
   const uploadImage = async (image: ImagePicker.ImagePickerAsset) => {
-    console.log("IMAGE", image);
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
     const formData = new FormData();
 
-    // Ajouter le fichier à l'objet FormData
     formData.append("file", {
       uri:
         Platform.OS === "android"
@@ -157,8 +160,6 @@ export default function HomeScreen() {
       type: image.mimeType,
       name: image.fileName,
     } as any);
-
-    console.log("API URL", apiUrl);
 
     try {
       const response = await fetch(`${apiUrl}/uploads`, {
@@ -170,14 +171,25 @@ export default function HomeScreen() {
         throw new Error(result.error);
       }
 
-      console.log("SCORE", result.score);
-      // [TODO] Only change the current card score
+      setCardInfo((prevCardInfo) => {
+        // Safeguard: ensure `prevCardInfo` exists and has a valid `dayIndex`
+        if (prevCardInfo && prevCardInfo[dayIndex]) {
+          const updatedCardInfo = [...prevCardInfo];
+          updatedCardInfo[dayIndex] = {
+            ...updatedCardInfo[dayIndex], // Keep other properties intact
+            score: result.score, // Update only the image
+          };
+          return updatedCardInfo;
+        }
+        return prevCardInfo;
+      });
       setScore(result.score);
     } catch (error: any) {
       Alert.alert("Upload failed", error.message);
       console.error("Upload failed", error);
     }
   };
+
   const width = useWindowDimensions();
   const translateX = useSharedValue(0);
   const direction = useSharedValue(0);
@@ -188,39 +200,23 @@ export default function HomeScreen() {
       translateX.value = e.translationX;
     })
     .onEnd((e) => {
-      console.log("cardInfolength", cardInfo.length);
-      console.log("cardInfolength", cardInfo.length - 1);
-
-      console.log("dayINDEX", dayIndex < cardInfo.length - 1);
-
-      console.log(
-        "SWIPE?????",
-        cardInfo && e.translationX < -width.width / 2 && dayIndex > 0
-      );
-
       if (cardInfo && e.translationX > width.width / 2) {
-        // Swipe right: show the previous card
         if (dayIndex > 0) {
           console.log("SWIPE RIGHT, MOVE TO PREVIOUS CARD");
           // setDayIndex((prevIndex) => prevIndex - 1);
           translateX.value = withTiming(0, { duration: 500 });
         } else {
-          console.log("RESET SWIPE RIGHT, ALREADY AT FIRST CARD");
           translateX.value = withTiming(0, { duration: 500 });
         }
       } else if (cardInfo && e.translationX < -width.width / 2) {
-        // Swipe left: show the next card
         if (dayIndex < cardInfo.length - 1) {
           console.log("SWIPE LEFT, MOVE TO NEXT CARD");
           // setDayIndex((prevIndex) => prevIndex + 1);
           translateX.value = withTiming(0, { duration: 500 });
         } else {
-          console.log("RESET SWIPE LEFT, ALREADY AT LAST CARD");
           translateX.value = withTiming(0, { duration: 500 });
         }
       } else {
-        // Reset if swipe did not pass the threshold
-        console.log("RESET SWIPE, NO CARD SWITCH");
         translateX.value = withTiming(0, { duration: 500 });
       }
     });
@@ -248,12 +244,6 @@ export default function HomeScreen() {
     };
   });
 
-  console.log(
-    "cardInfo[dayIndex].weekday",
-    cardInfo ? cardInfo[dayIndex].weekday : weekday
-  );
-  console.log("dayIndex", dayIndex);
-
   return (
     <GestureDetector gesture={pan}>
       <View
@@ -269,17 +259,15 @@ export default function HomeScreen() {
             { backgroundColor: Colors[theme].background },
           ]}
         >
-          {
-            <DayCard
-              key={cardInfo[dayIndex].weekday}
-              image={cardInfo[dayIndex].image}
-              score={cardInfo[dayIndex].score}
-              weekday={cardInfo[dayIndex].weekday}
-              rest={cardInfo[dayIndex].rest}
-              colorOfTheDay={cardInfo[dayIndex].color}
-              takePhoto={takePhoto}
-            />
-          }
+          <DayCard
+            key={cardInfo[dayIndex].weekday}
+            image={cardInfo[dayIndex].image}
+            score={cardInfo[dayIndex].score}
+            weekday={cardInfo[dayIndex].weekday}
+            rest={cardInfo[dayIndex].rest}
+            colorOfTheDay={cardInfo[dayIndex].color}
+            takePhoto={takePhoto}
+          />
         </Animated.View>
       </View>
     </GestureDetector>
