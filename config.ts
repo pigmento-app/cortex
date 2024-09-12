@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:5001/api';
+export const API_BASE_URL = 'http://10.93.162.45:5001/api';
 export const DEV_MODE = true;
 export const firebaseConfig = {
 	apiKey: 'AIzaSyDMREMVdn88DDo7lCLnRLVHO7FQTrF_hYI',

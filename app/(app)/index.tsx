@@ -183,7 +183,7 @@ export default function HomeScreen() {
               },
             ]}
           >
-            <Camera width={24} height={24} />
+            <CameraTabbar width={24} height={24} />
             <Text style={styles.takePhotoBtnText}>Prendre une photo</Text>
           </TouchableOpacity>
           {image && <Image source={{ uri: image }} style={styles.image} />}
