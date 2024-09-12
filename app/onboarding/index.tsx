@@ -186,13 +186,15 @@ export default function Onboarding() {
     <SafeAreaView style={{ backgroundColor: "#EEEEEE" }}>
       <View style={styles.container}>
         <View style={styles.topbar}>
-          <LogoOnly />
+          <LogoOnly width={40} height={40} />
           <TouchableOpacity onPress={endOnboarding}>
             <Text style={{ fontSize: 16, fontWeight: "400" }}>Skip</Text>
           </TouchableOpacity>
         </View>
-        {renderStepContent()}
-        {renderBottomContent()}
+        <View>
+          {renderStepContent()}
+          {renderBottomContent()}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -209,10 +211,9 @@ const styles = StyleSheet.create({
   },
   topbar: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    width: "100%",
-    padding: 24,
+    justifyContent: "space-between",
+    paddingHorizontal: 34,
   },
   bottomContainer: {
     position: "absolute",
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: "bold",
     marginBottom: 20,
-    maxWidth: 200,
+    maxWidth: "90%",
     color: "white",
   },
   description: {
