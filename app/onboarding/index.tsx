@@ -5,13 +5,17 @@ import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
+  Dimensions,
   Image,
+  ScrollView, // Ajout de ScrollView
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const { width: screenWidth } = Dimensions.get("window"); // Récupère la largeur de l'écran
 
 const steps = [
   {
@@ -26,26 +30,42 @@ const steps = [
     title: "One picture, every day",
     description:
       "Take a picture around you, trying to capture as much of the proposed color as possible.",
-    // image: require("@/assets/images/onboarding/step2.png"),
+    image: require("@/assets/images/onboarding/step2.png"),
   },
   {
     colorBottom: "#5B3A6A",
     title: "One score, every day",
     description:
       "The closer your photo is to the color, the more points you'll earn.",
-    // image: require("@/assets/images/onboarding/step3.png"),
+    image: require("@/assets/images/onboarding/step3.png"),
   },
 ];
 
 export default function Onboarding() {
   const { completeOnboarding } = useSession();
   const [step, setStep] = useState(1);
+  const scrollViewRef = useRef<ScrollView>(null);
 
+  // Gestion du défilement manuel via les boutons "Next" et "Back"
   const handleNextStep = () => {
     if (step < 3) {
+      scrollViewRef.current?.scrollTo({
+        x: step * screenWidth,
+        animated: false,
+      });
       return setStep(step + 1);
     }
     return endOnboarding();
+  };
+
+  const handlePreviousStep = () => {
+    if (step > 1) {
+      scrollViewRef.current?.scrollTo({
+        x: (step - 2) * screenWidth,
+        animated: false,
+      });
+      return setStep(step - 1);
+    }
   };
 
   const endOnboarding = () => {
@@ -53,19 +73,37 @@ export default function Onboarding() {
     return router.replace("/");
   };
 
+  // Gestion du changement d'étape lors du scroll
+  const handleScroll = (event: any) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const currentStep = Math.round(scrollPosition / screenWidth) + 1;
+    setStep(currentStep);
+  };
+
   const renderStepContent = () => (
-    <View>
-      <Image
-        source={steps[step - 1].image}
-        style={{
-          width: "auto",
-          height: "100%",
-          resizeMode: "contain",
-          marginLeft: "4%",
-          marginRight: "4%",
-        }}
-      />
-    </View>
+    <ScrollView
+      ref={scrollViewRef}
+      horizontal
+      pagingEnabled
+      showsHorizontalScrollIndicator={false}
+      onScroll={handleScroll} // Change d'étape lors du défilement
+      scrollEventThrottle={16} // Contrôle la fréquence de l'event `onScroll`
+    >
+      {steps.map((item, index) => (
+        <View key={index} style={{ width: screenWidth }}>
+          <Image
+            source={item.image}
+            style={{
+              width: 341,
+              height: "100%",
+              margin: "auto",
+              marginBottom: 42,
+              resizeMode: "contain",
+            }}
+          />
+        </View>
+      ))}
+    </ScrollView>
   );
 
   const dotWidths = steps.map(() => useRef(new Animated.Value(10)).current);
@@ -98,7 +136,7 @@ export default function Onboarding() {
         <View style={styles.navContainer}>
           <ArrowButton
             title="Back"
-            onPress={() => setStep(step - 1)}
+            onPress={handlePreviousStep}
             direction="left"
             opacity={step > 1 ? 1 : 0}
           />
@@ -125,7 +163,7 @@ export default function Onboarding() {
             />
           ) : (
             <ArrowButton
-              title="Next"
+              title="Complete"
               onPress={handleNextStep}
               direction="right"
               opacity={1}
@@ -138,13 +176,12 @@ export default function Onboarding() {
   );
 
   return (
-    // TODOREVIEW SA : add dark mode (background)
     <SafeAreaView style={{ backgroundColor: "#EEEEEE" }}>
       <View style={styles.container}>
         <View style={styles.topbar}>
           <LogoOnly />
           <TouchableOpacity onPress={endOnboarding}>
-            <Text style={{ fontSize: 16, fontWeight: 400 }}>Skip</Text>
+            <Text style={{ fontSize: 16, fontWeight: "400" }}>Skip</Text>
           </TouchableOpacity>
         </View>
         {renderStepContent()}
