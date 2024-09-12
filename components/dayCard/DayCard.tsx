@@ -237,7 +237,7 @@ export default function DayCard({
         </TouchableOpacity>
         <Animated.View style={[styles.textInfoContainer, { opacity: textOpacity }]}>
           <Animated.Text style={[styles.explanatoryText, { opacity: pulseOpacity }]}>
-            Click or shake to discover fun fact
+            Tap or shake to reveal a fun fact
           </Animated.Text>
           <Animated.View style={[styles.shakeIconContainer, { transform: [{ rotate: shakeRotate }, { scale: pulseScale }] }]}>
             <Smartphone color={"#888"} size={24} />
