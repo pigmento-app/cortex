@@ -7,7 +7,7 @@ import {
   Animated,
   Dimensions,
   Image,
-  ScrollView, // Ajout de ScrollView
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const { width: screenWidth } = Dimensions.get("window"); // Récupère la largeur de l'écran
+const { width: screenWidth } = Dimensions.get("window");
 
 const steps = [
   {
@@ -74,10 +74,15 @@ export default function Onboarding() {
   };
 
   // Gestion du changement d'étape lors du scroll
-  const handleScroll = (event: any) => {
+  const handleScroll = (event) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const currentStep = Math.round(scrollPosition / screenWidth) + 1;
-    setStep(currentStep);
+
+    if (currentStep > steps.length) {
+      endOnboarding(); // Exécuter la fin de l'onboarding lorsque l'utilisateur fait défiler après la dernière étape
+    } else {
+      setStep(currentStep);
+    }
   };
 
   const renderStepContent = () => (
@@ -86,8 +91,8 @@ export default function Onboarding() {
       horizontal
       pagingEnabled
       showsHorizontalScrollIndicator={false}
-      onScroll={handleScroll} // Change d'étape lors du défilement
-      scrollEventThrottle={16} // Contrôle la fréquence de l'event `onScroll`
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
     >
       {steps.map((item, index) => (
         <View key={index} style={{ width: screenWidth }}>
@@ -103,6 +108,8 @@ export default function Onboarding() {
           />
         </View>
       ))}
+      {/* Ajouter un écran vide après la dernière étape pour permettre un défilement supplémentaire */}
+      <View style={{ width: screenWidth }} />
     </ScrollView>
   );
 
