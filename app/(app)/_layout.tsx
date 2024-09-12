@@ -10,11 +10,14 @@ import { Redirect, Stack } from "expo-router";
 import { Tabs } from "expo-router";
 import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useSession } from "@/context/authContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+// CONSTANTS
+import { Colors } from "@/constants/Colors";
 import { Fonts } from "@/constants/Fonts";
+// ICONS
+import PigmentoLogo from "@/assets/svg/logo-pigmento.svg";
 
 export default function AppLayout() {
   const colorScheme = useColorScheme();
@@ -34,18 +37,20 @@ export default function AppLayout() {
   }
 
   return (
-    <>
+    <View
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+        flex: 1,
+        paddingHorizontal: 34,
+      }}
+    >
       <SafeAreaView
         style={[
           styles.header,
           { backgroundColor: Colors[colorScheme ?? "light"].background },
         ]}
       >
-        <Text
-          style={[Fonts.title, { color: Colors[colorScheme ?? "light"].text }]}
-        >
-          Pigmento.
-        </Text>
+        <PigmentoLogo width={40} height={40} />
         <Button
           title="Sign out"
           onPress={signOut}
@@ -55,7 +60,7 @@ export default function AppLayout() {
       <View style={styles.content}>
         <TabLayout />
       </View>
-    </>
+    </View>
   );
 }
 
@@ -117,13 +122,12 @@ function TabLayout() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    marginHorizontal: 34,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
   },
   content: {
     flex: 1,

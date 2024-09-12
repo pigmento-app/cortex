@@ -9,8 +9,9 @@ import {
   useColorScheme,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 import { ThemedView } from "@/components/ThemedView";
-import Camera from "@/assets/svg/camera.svg";
+import CameraTabbar from "@/assets/svg/camera-tabbar.svg";
 import { Fonts } from "@/constants/Fonts";
 import { Ellipse, Svg } from "react-native-svg";
 import { Colors } from "@/constants/Colors";
@@ -24,6 +25,16 @@ export default function HomeScreen() {
   } | null>(null);
   const [score, setScore] = useState<number>(0);
   const theme = useColorScheme() ?? "light";
+  const date = new Date();
+
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "long", // Full name of the day (e.g., Tuesday)
+    month: "long", // Full name of the month (e.g., September)
+    day: "numeric", // Numeric day (e.g., 11)
+  };
+
+  const formattedDate = date.toLocaleDateString("en-US", options);
+  const [weekday, rest] = formattedDate.split(", ");
   const [currentColor, setCurrentColor] = useState<string | null>(null); // RGB color as string
 
   const takePhoto = async () => {
@@ -40,8 +51,15 @@ export default function HomeScreen() {
 
     if (!result.canceled) {
       const image = result.assets[0];
+
+      // Resize the image to 600x600 pixels
+      const resizedImage = await ImageManipulator.manipulateAsync(
+        image.uri,
+        [{ resize: { width: 600, height: 600 } }],
+        { compress: 1, format: ImageManipulator.SaveFormat.JPEG } // Optionally adjust compression and format
+      );
       setImage(image.uri);
-      uploadImage(image); // Appel à la fonction d'upload
+      uploadImage(resizedImage);
     }
   };
 
@@ -109,6 +127,23 @@ export default function HomeScreen() {
           { backgroundColor: Colors[theme].background },
         ]}
       >
+        <View style={styles.datesContainer}>
+          <Text style={[Fonts.date, { color: Colors[theme].text }]}>
+            {weekday},
+          </Text>
+          <Text style={[Fonts.date, { color: Colors[theme].text }]}>
+            {rest}
+          </Text>
+        </View>
+        <View style={[styles.btnContainer]}>
+          {!image && (
+            <TouchableOpacity onPress={takePhoto} style={[styles.takePhotoBtn]}>
+              <CameraTabbar width={24} height={24} />
+              <Text style={styles.takePhotoBtnText}>Prendre une photo</Text>
+            </TouchableOpacity>
+          )}
+          {image && <Image source={{ uri: image }} style={styles.image} />}
+        </View>
         <View style={styles.infoContainer}>
           <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
             <Svg height="40" width="40">
@@ -121,9 +156,11 @@ export default function HomeScreen() {
                 fill={currentColor || "gray"}
               />
             </Svg>
-            <Text style={[Fonts.info, { color: Colors[theme].text }]}>
-              Couleur du jour
-            </Text>
+            {image && (
+              <Text style={[Fonts.info, { color: Colors[theme].text }]}>
+                Score {score} %
+              </Text>
+            )}
           </View>
           <Text style={Fonts.info}>{score} points</Text>
         </View>
@@ -159,25 +196,32 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
-    padding: 0,
   },
   mainContainer: {
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
+    backgroundColor: "green",
+  },
+  datesContainer: {
+    width: "100%",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
   },
   infoContainer: {
-    marginTop: 40,
     width: "100%",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
+    marginBottom: 40,
   },
   btnContainer: {
-    marginVertical: 20,
-    flex: 1, // Takes the available vertical space
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 10,
     justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#E3E3E3",
   },
   takePhotoBtn: {
     flexDirection: "row",
@@ -187,23 +231,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     backgroundColor: "white",
-    marginBottom: 20,
   },
   takePhotoBtnText: {
     color: "#111",
     fontSize: 16,
   },
   image: {
-    width: 200,
-    height: 200,
-    marginTop: 10,
+    width: "100%",
+    height: "100%",
     borderRadius: 10,
-  },
-  colorCountsContainer: {
-    marginTop: 20,
-  },
-  colorCountText: {
-    color: "#000",
-    fontSize: 14,
   },
 });

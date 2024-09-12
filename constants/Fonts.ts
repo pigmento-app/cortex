@@ -11,4 +11,9 @@ export const Fonts = StyleSheet.create({
     fontSize: 18,
     fontWeight: "400", // Numeric value or use 'normal'
   },
+  date: {
+    fontFamily: "Inter Tight",
+    fontSize: 40,
+    fontWeight: "400", // Numeric value or use 'normal'
+  },
 });
