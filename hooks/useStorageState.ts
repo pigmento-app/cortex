@@ -1,21 +1,24 @@
-import { useEffect, useCallback, useReducer } from 'react';
-import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+import { useEffect, useCallback, useReducer } from "react";
+import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 
 type UseStateHook<T> = [[boolean, T | null], (value: T | null) => void];
 
 function useAsyncState<T>(
-  initialValue: [boolean, T | null] = [true, null],
+  initialValue: [boolean, T | null] = [true, null]
 ): UseStateHook<T> {
   return useReducer(
-    (state: [boolean, T | null], action: T | null = null): [boolean, T | null] => [false, action],
+    (
+      state: [boolean, T | null],
+      action: T | null = null
+    ): [boolean, T | null] => [false, action],
     initialValue
   ) as UseStateHook<T>;
 }
 
 export async function setStorageItemAsync<T>(key: string, value: T | null) {
   const stringValue = value !== null ? JSON.stringify(value) : null;
-  if (Platform.OS === 'web') {
+  if (Platform.OS === "web") {
     try {
       if (stringValue === null) {
         localStorage.removeItem(key);
@@ -23,7 +26,7 @@ export async function setStorageItemAsync<T>(key: string, value: T | null) {
         localStorage.setItem(key, stringValue);
       }
     } catch (e) {
-      console.error('Local storage is unavailable:', e);
+      console.error("Local storage is unavailable:", e);
     }
   } else {
     if (stringValue == null) {
@@ -34,14 +37,17 @@ export async function setStorageItemAsync<T>(key: string, value: T | null) {
   }
 }
 
-export function useStorageState<T>(key: string, initialValue: T | null = null): UseStateHook<T> {
+export function useStorageState<T>(
+  key: string,
+  initialValue: T | null = null
+): UseStateHook<T> {
   const [state, setState] = useAsyncState<T>([true, initialValue]);
 
   useEffect(() => {
     const loadState = async () => {
       try {
         let storedValue: string | null = null;
-        if (Platform.OS === 'web') {
+        if (Platform.OS === "web") {
           storedValue = localStorage.getItem(key);
         } else {
           storedValue = await SecureStore.getItemAsync(key);
@@ -52,7 +58,7 @@ export function useStorageState<T>(key: string, initialValue: T | null = null): 
           setState(initialValue);
         }
       } catch (e) {
-        console.error('Failed to load state from storage', e);
+        console.error("Failed to load state from storage", e);
       }
     };
 

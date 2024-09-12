@@ -10,9 +10,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Update API URL in the .env, and change the IP adress by your own
-
-3. Start the app
+2. Start the app
 
    ```bash
     npx expo start

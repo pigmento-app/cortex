@@ -1,18 +1,28 @@
-import React from 'react';
+import React from "react";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, Button } from 'react-native';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { router } from "expo-router";
+import { useForm, Controller } from "react-hook-form";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+  Button,
+} from "react-native";
+import { z } from "zod";
 
-import Container from '@/components/Container';
-import { API_BASE_URL, DEV_MODE } from '@/config';
-import { useSession } from '@/context/authContext';
+import Container from "@/components/Container";
+import { useSession } from "@/context/authContext";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const DEV_MODE = process.env.EXPO_PUBLIC_DEV_MODE;
 
 const signInSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string()
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string(),
 });
 
 interface SignInFormData {
@@ -31,41 +41,41 @@ export default function SignIn() {
   const {
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: '',
-      password: ''
-    }
+      email: "",
+      password: "",
+    },
   });
 
   const onSubmit = async (data: SignInFormData): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/signin`, {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/users/signin`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData: ApiResponse = await response.json();
-        Alert.alert('Error', errorData.message || 'Something went wrong');
+        Alert.alert("Error", errorData.message || "Something went wrong");
         return;
       }
 
       const responseData: ApiResponse = await response.json();
       if (responseData.token) {
         signIn(responseData.token);
-        Alert.alert('Success', 'Signed in successfully');
-        router.replace('/');
+        Alert.alert("Success", "Signed in successfully");
+        router.replace("/");
       } else {
-        Alert.alert('Error', 'Failed to retrieve token');
+        Alert.alert("Error", "Failed to retrieve token");
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to sign in');
+      Alert.alert("Error", "Failed to sign in");
     }
   };
 
@@ -89,7 +99,9 @@ export default function SignIn() {
           </View>
         )}
       />
-      {errors.email && <Text style={styles.errorText}>{String(errors.email.message)}</Text>}
+      {errors.email && (
+        <Text style={styles.errorText}>{String(errors.email.message)}</Text>
+      )}
 
       <Controller
         control={control}
@@ -108,12 +120,14 @@ export default function SignIn() {
           </View>
         )}
       />
-      {errors.password && <Text style={styles.errorText}>{String(errors.password.message)}</Text>}
+      {errors.password && (
+        <Text style={styles.errorText}>{String(errors.password.message)}</Text>
+      )}
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/auth/signUp')}>
+      <TouchableOpacity onPress={() => router.push("/auth/signUp")}>
         <Text style={styles.signUpText}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
 
@@ -121,8 +135,8 @@ export default function SignIn() {
         <Button
           title="Dev mode"
           onPress={() => {
-            signIn('xxx');
-            router.replace('/');
+            signIn("xxx");
+            router.replace("/");
           }}
         />
       )}
@@ -132,45 +146,45 @@ export default function SignIn() {
 
 const styles = StyleSheet.create({
   button: {
-    alignItems: 'center',
-    backgroundColor: 'blue',
+    alignItems: "center",
+    backgroundColor: "blue",
     borderRadius: 5,
     marginVertical: 10,
     padding: 15,
-    width: '80%'
+    width: "80%",
   },
   buttonText: {
-    color: 'white',
-    fontSize: 16
+    color: "white",
+    fontSize: 16,
   },
   errorText: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
-    textAlign: 'left',
-    width: '80%'
+    textAlign: "left",
+    width: "80%",
   },
   input: {
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
     borderWidth: 1,
-    padding: 10
+    padding: 10,
   },
   inputContainer: {
     marginVertical: 10,
-    width: '80%'
+    width: "80%",
   },
   label: {
-    color: '#333',
+    color: "#333",
     fontSize: 16,
-    marginBottom: 5
+    marginBottom: 5,
   },
   signUpText: {
-    color: 'blue',
+    color: "blue",
     marginTop: 20,
-    textDecorationLine: 'underline'
+    textDecorationLine: "underline",
   },
   title: {
     fontSize: 24,
-    marginBottom: 20
-  }
+    marginBottom: 20,
+  },
 });

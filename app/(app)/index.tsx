@@ -43,7 +43,7 @@ const dummyCardInfo = [
   },
 ];
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function HomeScreen() {
   const [cardInfo, setCardInfo] = useState<
@@ -73,7 +73,7 @@ export default function HomeScreen() {
 
   const getColor = useCallback(async () => {
     try {
-      const response = await fetch(`${apiUrl}/colors`, {
+      const response = await fetch(`${API_URL}/colors`, {
         method: "GET",
       });
       const result = await response.json();
@@ -126,6 +126,7 @@ export default function HomeScreen() {
           [{ resize: { width: 600, height: 600 } }],
           { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
         );
+
         setCardInfo((prevCardInfo) => {
           // Safeguard: ensure `prevCardInfo` exists and has a valid `dayIndex`
           if (prevCardInfo && prevCardInfo[dayIndex]) {
@@ -148,25 +149,29 @@ export default function HomeScreen() {
   };
 
   const uploadImage = async (image: ImagePicker.ImagePickerAsset) => {
-    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
     const formData = new FormData();
 
+    console.log("Uploading image", image);
+
     formData.append("file", {
-      uri:
-        Platform.OS === "android"
-          ? image.uri
-          : image.uri.replace("file://", ""), // iOS nécessite de retirer 'file://'
+      uri: image.uri.replace("file://", ""), // iOS nécessite de retirer 'file://'
       type: image.mimeType,
       name: image.fileName,
     } as any);
 
+    console.log("Uploading image", image.uri);
+
     try {
-      const response = await fetch(`${apiUrl}/uploads`, {
+      const response = await fetch(`${API_URL}/uploads`, {
         method: "POST",
         body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
       const result = await response.json();
       if (result.error) {
+        console.log("Uploading image", image.uri);
         throw new Error(result.error);
       }
 

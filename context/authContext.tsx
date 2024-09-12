@@ -1,5 +1,5 @@
-import { useContext, createContext, type PropsWithChildren } from 'react';
-import { useStorageState } from '@/hooks/useStorageState';
+import { useContext, createContext, type PropsWithChildren } from "react";
+import { useStorageState } from "@/hooks/useStorageState";
 
 const AuthContext = createContext<{
   signIn: (token: string) => void;
@@ -21,15 +21,18 @@ const AuthContext = createContext<{
 export function useSession() {
   const value = useContext(AuthContext);
   if (!value) {
-    throw new Error('useSession must be wrapped in a <SessionProvider />');
+    throw new Error("useSession must be wrapped in a <SessionProvider />");
   }
 
   return value;
 }
 
 export function SessionProvider({ children }: PropsWithChildren) {
-  const [[isLoading, session], setSession] = useStorageState<string>('session');
-  const [[, onboardValue], setIsOnboard] = useStorageState<boolean>('isOnboard', false);
+  const [[isLoading, session], setSession] = useStorageState<string>("session");
+  const [[, onboardValue], setIsOnboard] = useStorageState<boolean>(
+    "isOnboard",
+    false
+  );
 
   const isOnboard = onboardValue ?? false;
 
@@ -48,7 +51,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
         completeOnboarding: () => {
           setIsOnboard(true);
         },
-      }}>
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
