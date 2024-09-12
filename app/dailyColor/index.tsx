@@ -1,19 +1,37 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Easing, useColorScheme, Pressable } from 'react-native';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, Animated, Easing, useColorScheme, Alert } from 'react-native';
 import { Colors } from "@/constants/Colors";
 
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 export default function DailyColor() {
-
-  const colorScheme = useColorScheme()
-
-  const color = "blue"
+  const colorScheme = useColorScheme();
+  const [currentColor, setCurrentColor] = useState<string>("blue");
 
   const mainCircleAnimation = useRef(new Animated.Value(1)).current;
   const animation1 = useRef(new Animated.Value(0)).current;
   const animation2 = useRef(new Animated.Value(0)).current;
   const animation3 = useRef(new Animated.Value(0)).current;
 
+  const getColor = useCallback(async () => {
+    try {
+      const response = await fetch(`${apiUrl}/colors`, {
+        method: "GET",
+      });
+      const result = await response.json();
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      setCurrentColor(result.color);
+    } catch (error: any) {
+      Alert.alert("Failed to fetch today's color", error.message);
+      console.error("Fetch failed", error);
+    }
+  }, []);
+
   useEffect(() => {
+    getColor();
+
     const startScaleAnimation = (animation: Animated.Value) => {
       Animated.loop(
         Animated.sequence([
@@ -91,16 +109,16 @@ export default function DailyColor() {
     startTranslateAnimation1(animation1);
     startTranslateAnimation2(animation2);
     startTranslateAnimation3(animation3);
-  }, [mainCircleAnimation, animation1, animation2, animation3]);
+  }, [mainCircleAnimation, animation1, animation2, animation3, getColor]);
 
   return (
     <View style={[styles.container, { backgroundColor: Colors[colorScheme ?? "light"].background }]}>
-      <Text style={[styles.title, { color }]}>Daily Color</Text>
+      <Text style={[styles.title, { color: currentColor }]}>Daily Color</Text>
       <Animated.View
         style={[
           styles.circle,
           {
-            backgroundColor: color,
+            backgroundColor: currentColor,
             transform: [{ scale: mainCircleAnimation }],
           },
         ]}
@@ -109,7 +127,7 @@ export default function DailyColor() {
         style={[
           styles.smallCircle,
           {
-            backgroundColor: color,
+            backgroundColor: currentColor,
             transform: [{ translateY: animation1 }],
           },
         ]}
@@ -118,7 +136,7 @@ export default function DailyColor() {
         style={[
           styles.topCircle,
           {
-            backgroundColor: color,
+            backgroundColor: currentColor,
             transform: [{ translateY: animation2 }],
           },
         ]}
@@ -127,7 +145,7 @@ export default function DailyColor() {
         style={[
           styles.bottomCircle,
           {
-            backgroundColor: color,
+            backgroundColor: currentColor,
             transform: [{ translateY: animation3 }],
           },
         ]}
