@@ -1,8 +1,31 @@
+import LogoOnly from "@/assets/svg/LogoOnly.svg";
+import ArrowButton from "@/components/common/ArrowButton";
 import { useSession } from "@/context/authContext";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const steps = [
+  {
+    colorBottom: "#0D7337",
+    title: "One color, every day",
+    description:
+      "Every day, you are notified of a random color at a random time.",
+  },
+  {
+    colorBottom: "#7F0134",
+    title: "One picture, every day",
+    description:
+      "Take a picture around you, trying to capture as much of the proposed color as possible.",
+  },
+  {
+    colorBottom: "#5B3A6A",
+    title: "One score, every day",
+    description:
+      "The closer your photo is to the color, the more points you'll earn.",
+  },
+];
 
 export default function Onboarding() {
   const { completeOnboarding } = useSession();
@@ -12,7 +35,6 @@ export default function Onboarding() {
     if (step < 3) {
       return setStep(step + 1);
     }
-
     return endOnboarding();
   };
 
@@ -21,100 +43,75 @@ export default function Onboarding() {
     return router.replace("/");
   };
 
-  let colorBottom = "";
-  let title = "";
-  let description = "";
+  const renderStepContent = () => (
+    <View>
+      <Text>{`Step ${step}`}</Text>
+    </View>
+  );
 
-  const renderStepContent = () => {
-    switch (step) {
-      case 1:
-        colorBottom = "red";
-        title = "Step 1";
-        description = "This is the first step";
-        return (
-          <View>
-            <Text>Step 1</Text>
+  const renderBottomContent = () => (
+    <View
+      style={{
+        ...styles.bottomContainer,
+        backgroundColor: steps[step - 1].colorBottom,
+      }}
+    >
+      <View style={styles.onBoardingBottom}>
+        <View style={styles.onBoardingTitle}>
+          <Text style={styles.title}>{steps[step - 1].title}</Text>
+          <Text style={styles.description}>{steps[step - 1].description}</Text>
+        </View>
+      </View>
+      <View>
+        <View style={styles.navContainer}>
+          {step > 1 ? (
+            <ArrowButton
+              title="Back"
+              onPress={() => setStep(step - 1)}
+              direction="left"
+            />
+          ) : (
+            <View style={{ width: 40 }} />
+          )}
+          <View style={styles.pagination}>
+            {steps.map((_, i) => (
+              <View
+                key={i}
+                style={step === i + 1 ? styles.activeDot : styles.dot}
+              />
+            ))}
           </View>
-        );
-      case 2:
-        title = "Step 2";
-        description = "This is the second step";
-        colorBottom = "blue";
-        return <Text>Step 2</Text>;
-      case 3:
-        title = "Step 3";
-        description = "This is the third step";
-        colorBottom = "green";
-        return <Text>Step 3</Text>;
-      default:
-        return null;
-    }
-  };
+          {step < 3 ? (
+            <ArrowButton
+              title="Next"
+              onPress={handleNextStep}
+              direction="right"
+            />
+          ) : (
+            <ArrowButton
+              title="Next"
+              onPress={handleNextStep}
+              direction="right"
+              isLast={true}
+            />
+          )}
+        </View>
+      </View>
+    </View>
+  );
 
   return (
-    <SafeAreaView>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          position: "relative",
-          backgroundColor: "violet",
-          height: "100%",
-        }}
-      >
+    // TODOREVIEW SA : add dark mode (background)
+    <SafeAreaView style={{ backgroundColor: "#EEEEEE" }}>
+      <View style={styles.container}>
         <View style={styles.topbar}>
-          <Text style={styles.title}>Pigmento.</Text>
-          <Button title="Skip" onPress={endOnboarding} />
+          <LogoOnly />
+          <TouchableOpacity onPress={endOnboarding}>
+            <Text style={{ fontSize: 16, fontWeight: 400 }}>Skip</Text>
+          </TouchableOpacity>
         </View>
         {renderStepContent()}
-
-        <View
-          style={{
-            backgroundColor: colorBottom,
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            height: 291,
-            flexDirection: "column",
-            justifyContent: "space-between",
-            paddingTop: 24,
-            paddingLeft: 24,
-            paddingRight: 24,
-            paddingBottom: 36,
-          }}
-        >
-          <View style={styles.onBoardingBottom}>
-            <View style={styles.onBoardingTitle}>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.description}>{description}</Text>
-            </View>
-          </View>
-          <View>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              {step > 1 ? (
-                <Button title="Back" onPress={() => setStep(step - 1)} />
-              ) : (
-                <View style={{ width: 40 }} />
-              )}
-
-              <View style={styles.pagination}>
-                <View style={step === 1 ? styles.activeDot : styles.dot} />
-                <View style={step === 2 ? styles.activeDot : styles.dot} />
-                <View style={step === 3 ? styles.activeDot : styles.dot} />
-              </View>
-              <Button title="Next" onPress={handleNextStep} />
-            </View>
-          </View>
-        </View>
+        {renderBottomContent()}
       </View>
     </SafeAreaView>
   );
@@ -122,7 +119,12 @@ export default function Onboarding() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    position: "relative",
+    backgroundColor: "#EEEEEE",
+    height: "100%",
   },
   topbar: {
     flexDirection: "row",
@@ -130,6 +132,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     padding: 24,
+  },
+  bottomContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    width: "100%",
+    height: 320,
+    flexDirection: "column",
+    justifyContent: "space-between",
+    paddingTop: 32,
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 32,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
   },
   onBoardingBottom: {
     flexDirection: "column",
@@ -140,13 +157,21 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   title: {
-    fontSize: 24,
+    fontSize: 36,
     fontWeight: "bold",
     marginBottom: 20,
+    maxWidth: 200,
+    color: "white",
   },
   description: {
-    fontSize: 16,
-    color: "gray",
+    fontSize: 18,
+    color: "#EEEEEE",
+  },
+  navContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   pagination: {
     flexDirection: "row",
