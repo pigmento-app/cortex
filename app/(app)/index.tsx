@@ -34,7 +34,7 @@ const dummyCardInfo = [
     weekday: "Tuesday",
     rest: "September 10",
     score: 22,
-    color: "blue",
+    color: "orange",
   },
   {
     image: require("../../assets/images/placeholder3.jpg"),
@@ -134,7 +134,7 @@ export default function HomeScreen() {
     }
   };
 
-  const uploadImage = async (image: ImagePicker.ImagePickerAsset) => {
+  const uploadImage = async (image: ImageManipulator.ImageResult) => {
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
     const formData = new FormData();
 
@@ -143,8 +143,6 @@ export default function HomeScreen() {
         Platform.OS === "android"
           ? image.uri
           : image.uri.replace("file://", ""), // iOS nécessite de retirer 'file://'
-      type: image.mimeType,
-      name: image.fileName,
     } as any);
 
     try {
@@ -247,7 +245,7 @@ export default function HomeScreen() {
             weekday={cardInfo[dayIndex].weekday}
             rest={cardInfo[dayIndex].rest}
             colorOfTheDay={
-              Array.isArray(currentColor) ? currentColor[0] : currentColor
+              dayIndex === 0 ? currentColor : cardInfo[dayIndex].color
             }
             takePhoto={takePhoto}
           />
