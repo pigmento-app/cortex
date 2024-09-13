@@ -1,14 +1,13 @@
 import React from 'react';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, Button } from 'react-native';
 import { z } from 'zod';
-
 import Container from '@/components/Container';
 import { API_BASE_URL, DEV_MODE } from '@/config';
 import { useSession } from '@/context/authContext';
+import PigmentoLogo from "@/assets/svg/logo-pigmento.svg";
 
 const signInSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -71,7 +70,8 @@ export default function SignIn() {
 
   return (
     <Container>
-      <Text style={styles.title}>Sign In</Text>
+      <PigmentoLogo style={styles.logo} width={40} height={40} />
+      <Text style={styles.title}>Sign In to see photos and score from your friends</Text>
       <Controller
         control={control}
         name="email"
@@ -116,8 +116,14 @@ export default function SignIn() {
       <TouchableOpacity onPress={() => router.push('/auth/signUp')}>
         <Text style={styles.signUpText}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => {
+        signIn('xxx');
+        router.replace('/');
+      }}>
+        <Text style={styles.skipText}>Skip login</Text>
+      </TouchableOpacity>
 
-      {DEV_MODE && (
+      {/* {DEV_MODE && (
         <Button
           title="Dev mode"
           onPress={() => {
@@ -125,52 +131,63 @@ export default function SignIn() {
             router.replace('/');
           }}
         />
-      )}
+      )} */}
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
+  skipText: {
+    marginTop: 16,
+    color: '#007AFF',
+    fontSize: 16,
+  },
+  logo: {
+    marginBottom: 20,
+  },
   button: {
     alignItems: 'center',
-    backgroundColor: 'blue',
-    borderRadius: 5,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
     marginVertical: 10,
     padding: 15,
-    width: '80%'
+    width: '80%',
   },
   buttonText: {
     color: 'white',
-    fontSize: 16
+    fontSize: 16,
   },
   errorText: {
     color: 'red',
     marginBottom: 10,
     textAlign: 'left',
-    width: '80%'
+    width: '80%',
   },
   input: {
     borderColor: '#ccc',
+    backgroundColor: '#F5F5F5',
     borderRadius: 5,
     borderWidth: 1,
-    padding: 10
+    padding: 10,
   },
   inputContainer: {
     marginVertical: 10,
-    width: '80%'
+    width: '80%',
   },
   label: {
     color: '#333',
     fontSize: 16,
-    marginBottom: 5
+    marginBottom: 5,
   },
   signUpText: {
-    color: 'blue',
+    color: '#888888',
     marginTop: 20,
-    textDecorationLine: 'underline'
+    textDecorationLine: 'underline',
   },
   title: {
-    fontSize: 24,
-    marginBottom: 20
-  }
+    fontSize: 18,
+    marginBottom: 20,
+    width: '70%',
+    textAlign: 'center',
+  },
 });
