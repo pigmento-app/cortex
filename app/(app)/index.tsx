@@ -23,21 +23,21 @@ import { useLocalSearchParams } from "expo-router";
 
 const dummyCardInfo = [
   {
-    image: "",
+    image: require("../../assets/images/placeholder1.jpg"),
     weekday: "Wednesday",
     rest: "September 11",
     score: 10,
     color: "red",
   },
   {
-    image: "",
+    image: require("../../assets/images/placeholder2.jpg"),
     weekday: "Tuesday",
     rest: "September 10",
     score: 22,
     color: "blue",
   },
   {
-    image: "",
+    image: require("../../assets/images/placeholder3.jpg"),
     weekday: "Monday",
     rest: "September 09",
     score: 90,
@@ -72,7 +72,6 @@ export default function HomeScreen() {
   const formattedDate = date.toLocaleDateString("en-US", options);
   const { currentColor } = useLocalSearchParams();
 
-
   const [weekday, rest] = formattedDate.split(", ");
 
   useEffect(() => {
@@ -89,7 +88,6 @@ export default function HomeScreen() {
       setDayIndex(0); // Make sure today's card is the first one shown
     }
   }, [hasPlayed, currentColor]);
-
 
   const takePhoto = async () => {
     try {
@@ -130,7 +128,9 @@ export default function HomeScreen() {
         uploadImage(resizedImage);
       }
     } catch (error: any) {
-      Alert.alert("An error occurred", error.message);
+      console.log("An error occurred", error);
+
+      // Alert.alert("An error occurred", error.message);
     }
   };
 
@@ -171,8 +171,8 @@ export default function HomeScreen() {
       });
       setScore(result.score);
     } catch (error: any) {
-      Alert.alert("Upload failed", error.message);
-      console.error("Upload failed", error);
+      // Alert.alert("Upload failed", error.message);
+      console.log("Upload failed", error);
     }
   };
 
@@ -218,9 +218,6 @@ export default function HomeScreen() {
           scale: 1 - dayIndex * 0.05,
         },
         {
-          translateY: dayIndex * -30,
-        },
-        {
           rotateZ: `${direction.value * rotateZ}deg`,
         },
       ],
@@ -249,7 +246,9 @@ export default function HomeScreen() {
             score={cardInfo[dayIndex].score}
             weekday={cardInfo[dayIndex].weekday}
             rest={cardInfo[dayIndex].rest}
-            colorOfTheDay={Array.isArray(currentColor) ? currentColor[0] : currentColor}
+            colorOfTheDay={
+              Array.isArray(currentColor) ? currentColor[0] : currentColor
+            }
             takePhoto={takePhoto}
           />
         </Animated.View>

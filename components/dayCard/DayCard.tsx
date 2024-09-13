@@ -8,6 +8,7 @@ import {
   useColorScheme,
   Animated,
   Platform,
+  ImageSourcePropType,
 } from "react-native";
 import CameraTabbar from "@/assets/svg/camera-tabbar.svg";
 import { Fonts } from "@/constants/Fonts";
@@ -15,13 +16,18 @@ import { Ellipse, Svg } from "react-native-svg";
 import { Colors } from "@/constants/Colors";
 import { Smartphone } from "lucide-react-native";
 
-let Accelerometer: { addListener: (arg0: (data: { x: number; y: number; z: number; }) => void) => any; setUpdateInterval: (arg0: number) => void; } | null = null;
-if (Platform.OS !== 'web') {
-  Accelerometer = require('expo-sensors').Accelerometer;
+let Accelerometer: {
+  addListener: (
+    arg0: (data: { x: number; y: number; z: number }) => void
+  ) => any;
+  setUpdateInterval: (arg0: number) => void;
+} | null = null;
+if (Platform.OS !== "web") {
+  Accelerometer = require("expo-sensors").Accelerometer;
 }
 
 interface DayCardProps {
-  image: string | null;
+  image: ImageSourcePropType | null;
   score: number;
   weekday: string;
   rest: string;
@@ -68,13 +74,13 @@ export default function DayCard({
   });
 
   const flipCard = () => {
-      Animated.spring(flipAnimation, {
-        toValue: isFlipped ? 0 : 180,
-        friction: 12,
-        tension: 6,
-        useNativeDriver: true,
-      }).start();
-      setIsFlipped(!isFlipped);
+    Animated.spring(flipAnimation, {
+      toValue: isFlipped ? 0 : 180,
+      friction: 12,
+      tension: 6,
+      useNativeDriver: true,
+    }).start();
+    setIsFlipped(!isFlipped);
   };
 
   const handleShake = (data: { x: number; y: number; z: number }) => {
@@ -83,12 +89,10 @@ export default function DayCard({
       flipCard();
     }
   };
-  
+
   const subscribe = () => {
     if (Accelerometer) {
-      setSubscription(
-        Accelerometer.addListener(handleShake)
-      );
+      setSubscription(Accelerometer.addListener(handleShake));
       Accelerometer.setUpdateInterval(100);
     }
   };
@@ -162,7 +166,7 @@ export default function DayCard({
 
   const shakeRotate = shakeAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: ['-5deg', '5deg'],
+    outputRange: ["-5deg", "5deg"],
   });
 
   const pulseScale = pulseAnimation.interpolate({
@@ -175,7 +179,9 @@ export default function DayCard({
   return (
     <>
       <View style={styles.datesContainer}>
-        <Text style={[Fonts.date, styles.weekday, { color: Colors[theme].text }]}>
+        <Text
+          style={[Fonts.date, styles.weekday, { color: Colors[theme].text }]}
+        >
           {weekday},
         </Text>
         <Text style={[Fonts.date, { color: Colors[theme].text }]}>{rest}</Text>
@@ -206,40 +212,51 @@ export default function DayCard({
                 </TouchableOpacity>
               </View>
             )}
-            {image && <Image source={{ uri: image }} style={styles.image} />}
+            {image && <Image source={image} style={styles.image} />}
           </Animated.View>
           {image && (
             <Animated.View
-            style={[
-              styles.flipCard,
-              styles.flipCardBack,
-              {
-                transform: [
-                  { perspective: 1000 },
-                  { rotateY: backInterpolate },
-                ],
-                zIndex: isFlipped ? 1 : 0,
-                backgroundColor: lightenedColor,
-              },
-            ]}
-          >
-            <View style={styles.backContent}>
-              <Text style={[styles.backTitle, { color: colorOfTheDay }]}>
-                Fact about the {"\n"}
-                <Text style={{ fontWeight: 'bold' }}>Royal Blue color</Text>
-              </Text>
-              <Text style={[styles.backText, { color: colorOfTheDay }]}>
-                Royal Blue, created in the 18th century for Queen Charlotte, symbolizes wealth and prestige, often used to represent royalty.
-              </Text>
-            </View>
-          </Animated.View>
+              style={[
+                styles.flipCard,
+                styles.flipCardBack,
+                {
+                  transform: [
+                    { perspective: 1000 },
+                    { rotateY: backInterpolate },
+                  ],
+                  zIndex: isFlipped ? 1 : 0,
+                  backgroundColor: lightenedColor,
+                },
+              ]}
+            >
+              <View style={styles.backContent}>
+                <Text style={[styles.backTitle, { color: colorOfTheDay }]}>
+                  Fact about the {"\n"}
+                  <Text style={{ fontWeight: "bold" }}>Royal Blue color</Text>
+                </Text>
+                <Text style={[styles.backText, { color: colorOfTheDay }]}>
+                  Royal Blue, created in the 18th century for Queen Charlotte,
+                  symbolizes wealth and prestige, often used to represent
+                  royalty.
+                </Text>
+              </View>
+            </Animated.View>
           )}
         </TouchableOpacity>
-        <Animated.View style={[styles.textInfoContainer, { opacity: textOpacity }]}>
-          <Animated.Text style={[styles.explanatoryText, { opacity: pulseOpacity }]}>
+        <Animated.View
+          style={[styles.textInfoContainer, { opacity: textOpacity }]}
+        >
+          <Animated.Text
+            style={[styles.explanatoryText, { opacity: pulseOpacity }]}
+          >
             Click or shake to discover fun fact
           </Animated.Text>
-          <Animated.View style={[styles.shakeIconContainer, { transform: [{ rotate: shakeRotate }, { scale: pulseScale }] }]}>
+          <Animated.View
+            style={[
+              styles.shakeIconContainer,
+              { transform: [{ rotate: shakeRotate }, { scale: pulseScale }] },
+            ]}
+          >
             <Smartphone color={"#888"} size={24} />
           </Animated.View>
         </Animated.View>
@@ -301,9 +318,9 @@ const styles = StyleSheet.create({
     backfaceVisibility: "hidden",
     position: "absolute",
     borderRadius: 10, // Ensure the same border-radius for both sides
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
   flipCardBack: {
     justifyContent: "center",

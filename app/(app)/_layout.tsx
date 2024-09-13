@@ -1,5 +1,12 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ActivityIndicator, StyleSheet, View, Button, TouchableWithoutFeedback, Alert } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  View,
+  Button,
+  TouchableWithoutFeedback,
+  Alert,
+} from "react-native";
 import { Redirect } from "expo-router";
 import { Tabs } from "expo-router";
 import React, { useState, useEffect, useCallback } from "react";
@@ -34,8 +41,8 @@ export default function AppLayout() {
       setCurrentColor(result.color);
       setIsColorLoading(false);
     } catch (error: any) {
-      Alert.alert("Failed to fetch today's color", error.message);
-      console.error("Fetch failed", error);
+      // Alert.alert("Failed to fetch today's color", error.message);
+      console.log("Fetch failed", error);
     }
   }, []);
 
