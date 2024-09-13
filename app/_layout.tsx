@@ -1,9 +1,9 @@
 import { Slot } from 'expo-router';
 import { SessionProvider } from '@/context/authContext';
-// import { useSendFcmToken } from '@/hooks/useSendFcmToken';
+import { useSendExpoPushToken } from '@/hooks/useSendExpoPushToken';
 
 export default function Root() {
-  // useSendFcmToken();
+  useSendExpoPushToken();
 
   return (
     <SessionProvider>

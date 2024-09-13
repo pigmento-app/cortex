@@ -56,6 +56,7 @@ export default function AppLayout() {
     return () => clearTimeout(timer);
   }, [getColor]);
 
+
   if (isLoading || isColorLoading) {
     return <ActivityIndicator size="large" />;
   }
